@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>寿司デスマッチ</title>
+  <link rel="icon" href="./favicon.ico" sizes="any">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Shippori+Mincho+B1:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">SUSHI ORDER BATTLE TOOL</p>
+        <h1><span class="jp-title">寿司</span><span class="metal"> DEATH MATCH</span></h1>
+      </div>
+      <button class="mini-button" type="button" id="openRulesFromHeader">ルール</button>
+    </header>
+
+    <nav class="tabs" aria-label="画面切り替え">
+      <button class="tab is-active" type="button" data-screen-target="setup">設定</button>
+      <button class="tab" type="button" data-screen-target="battle">対戦</button>
+      <button class="tab" type="button" data-screen-target="result">結果</button>
+      <button class="tab" type="button" data-screen-target="rules">ルール</button>
+    </nav>
+
+    <main>
+      <!-- SETUP -->
+      <section class="screen is-active" id="screen-setup" aria-labelledby="setupTitle">
+        <section class="panel hero-panel">
+          <p class="status-label">その一皿、見抜けるか。</p>
+          <h2 id="setupTitle">デスマッチ設定</h2>
+          <p class="lead">
+            2人で交互に出題します。タッチパネルの注文内容は相手に見えないようにし、
+            結果だけをこのツールで記録してください。
+          </p>
+        </section>
+
+        <section class="panel form-panel">
+          <div class="form-grid">
+            <label class="field">
+              <span>注文者A</span>
+              <input id="playerA" type="text" value="A" maxlength="12" autocomplete="off">
+            </label>
+
+            <label class="field">
+              <span>注文者B</span>
+              <input id="playerB" type="text" value="B" maxlength="12" autocomplete="off">
+            </label>
+
+            <label class="field">
+              <span>Aの本日の切り札予報</span>
+              <input id="trumpA" type="text" placeholder="例：えんがわ" maxlength="20" autocomplete="off">
+            </label>
+
+            <label class="field">
+              <span>Bの本日の切り札予報</span>
+              <input id="trumpB" type="text" placeholder="例：炙りサーモン" maxlength="20" autocomplete="off">
+            </label>
+          </div>
+
+          <div class="turn-select">
+            <div>
+              <span class="field-title">ターン数</span>
+              <p class="hint">1〜10。初期版では「各プレイヤーの出題回数」として扱います。</p>
+            </div>
+            <div class="turn-buttons" id="turnButtons" aria-label="ターン数選択">
+              <!-- JSで生成 -->
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button class="main-button danger" type="button" id="startGame">
+              <span class="metal">START</span>
+              <span>デスマッチ開始</span>
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <!-- BATTLE -->
+      <section class="screen" id="screen-battle" aria-labelledby="battleTitle">
+        <section class="score-board">
+          <article class="score-card" id="scoreCardA">
+            <p class="score-name" id="scoreNameA">A</p>
+            <p class="score-point"><span id="scoreA">0</span><small>点</small></p>
+            <p class="trump-line">切り札予報：<span id="battleTrumpA">未設定</span></p>
+          </article>
+
+          <article class="score-card" id="scoreCardB">
+            <p class="score-name" id="scoreNameB">B</p>
+            <p class="score-point"><span id="scoreB">0</span><small>点</small></p>
+            <p class="trump-line">切り札予報：<span id="battleTrumpB">未設定</span></p>
+          </article>
+        </section>
+
+        <section class="panel battle-panel">
+          <div class="battle-top">
+            <p class="status-label" id="roundLabel">第1問 / 全2問</p>
+            <h2 id="battleTitle"><span id="currentAttacker">A</span> のターン</h2>
+            <p class="lead">
+              出題者はタッチパネルで注文後、口頭で二択を提示してください。
+            </p>
+          </div>
+
+          <div class="duel-box">
+            <div class="role-block attacker-block">
+              <p class="role-label">出題者</p>
+              <p class="role-name" id="attackerName">A</p>
+            </div>
+            <div class="vs metal">VS</div>
+            <div class="role-block defender-block">
+              <p class="role-label">回答者</p>
+              <p class="role-name" id="defenderName">B</p>
+            </div>
+          </div>
+
+          <div class="order-memo">
+            <label class="field">
+              <span>このターンのメモ（任意）</span>
+              <input id="roundMemo" type="text" placeholder="例：まぐろ vs かつおサーモン" maxlength="40" autocomplete="off">
+            </label>
+            <p class="hint">注文内容を相手に見せたくない場合は、空欄のままで大丈夫です。</p>
+          </div>
+
+          <div class="result-buttons">
+            <button class="judge-button correct" type="button" data-result="correct">
+              <span class="judge-main">回答者が正解</span>
+              <span class="judge-sub" id="correctPointText">回答者に +1点</span>
+            </button>
+
+            <button class="judge-button wrong" type="button" data-result="wrong">
+              <span class="judge-main">回答者が不正解</span>
+              <span class="judge-sub" id="wrongPointText">出題者に +1点</span>
+            </button>
+          </div>
+
+          <div class="trump-control">
+            <button class="trump-toggle" type="button" id="bonusToggle" aria-pressed="false">
+              <span class="trump-toggle-main">切り札</span>
+              <span class="trump-toggle-sub" id="bonusToggleText">未発動：通常1点</span>
+            </button>
+          </div>
+
+          <div class="notice" id="turnNotice" aria-live="polite">
+            結果を選ぶと、自動で次のターンへ進みます。
+          </div>
+        </section>
+
+        <section class="panel history-panel">
+          <div class="section-head">
+            <h3>注文履歴ならぬ、勝負履歴</h3>
+            <button class="mini-button" type="button" id="undoButton">一手戻す</button>
+          </div>
+          <ol class="history-list" id="historyList"></ol>
+        </section>
+      </section>
+
+      <!-- RESULT -->
+      <section class="screen" id="screen-result" aria-labelledby="resultTitle">
+        <section class="panel result-panel">
+          <p class="eyebrow metal">RESULT</p>
+          <h2 id="resultTitle">勝負あり</h2>
+
+          <div class="final-score">
+            <div>
+              <p class="score-name" id="finalNameA">A</p>
+              <p class="score-point"><span id="finalScoreA">0</span><small>点</small></p>
+            </div>
+            <div>
+              <p class="score-name" id="finalNameB">B</p>
+              <p class="score-point"><span id="finalScoreB">0</span><small>点</small></p>
+            </div>
+          </div>
+
+          <div class="winner-box">
+            <p class="status-label">WINNER</p>
+            <p class="winner-name" id="winnerName">未決着</p>
+            <p class="loser-text" id="loserText">罰ゲーム対象：未定</p>
+          </div>
+
+          <div class="action-row">
+            <button class="main-button" type="button" id="backToBattle">対戦画面へ</button>
+            <button class="main-button danger" type="button" id="resetGame">最初から</button>
+          </div>
+        </section>
+      </section>
+
+      <!-- RULES -->
+      <section class="screen" id="screen-rules" aria-labelledby="rulesTitle">
+        <section class="panel rules-panel">
+          <p class="eyebrow">RULE</p>
+          <h2 id="rulesTitle">寿司デスマッチ ルール</h2>
+
+          <ol class="rules-list">
+            <li>回転寿司屋で2名が参加します。</li>
+            <li>開始前にターン数と、それぞれの「本日の切り札予報」を設定します。</li>
+            <li>出題者はタッチパネルで注文し、回答者に二択問題を出します。</li>
+            <li>回答者が実際に注文された品を当てれば、回答者に1点。</li>
+            <li>回答者が外せば、出題者に1点。</li>
+            <li>切り札が絡む勝負では、得点が2点になります。</li>
+            <li>全ターン終了時、合計点が多い方の勝利です。</li>
+          </ol>
+
+          <div class="notice">
+            初期版では、注文内容の自動判定は行いません。現場での使いやすさを優先し、結果ボタンで点数を記録する設計です。
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>
