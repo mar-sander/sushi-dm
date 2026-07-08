@@ -463,6 +463,7 @@ input:focus {
 .vs {
   color: var(--gold);
   font-size: 2rem;
+  text-align: center;
 }
 
 .order-memo {
